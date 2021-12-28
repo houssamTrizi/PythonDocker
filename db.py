@@ -7,8 +7,6 @@ from config import *
 
 
 def init_db():
-    with open("./app/test.txt", 'w') as f:
-        f.write("did it")
     logger = logging.getLogger(__name__)
     mydb: mysql.connector.MySQLConnection = mysql.connector.MySQLConnection()
     count = 0
