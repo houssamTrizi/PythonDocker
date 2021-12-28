@@ -4,17 +4,16 @@ pipeline {
         }
     environment {
         HOME = "${env.WORKSPACE}"
-    }
     } 
     stages {
-        stage('Build') { 
+        stage('Install dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'python -m pip install -r requirements.txt'
             }
         }
         stage('Test') { 
             steps {
-                // 
+                sh 'python -m pytest tests '
             }
         }
         stage('Deploy') { 
