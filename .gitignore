@@ -156,3 +156,6 @@ cython_debug/
 # Default ignored files
 /shelf/
 /workspace.xml
+
+/app
+*$test.txt
