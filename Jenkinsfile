@@ -11,14 +11,14 @@ pipeline {
                 sh 'python -m pip install -r requirements.txt'
             }
         }
-        stage('Test') { 
+        stage('Test') {
             steps {
                 sh 'python -m pytest tests '
             }
         }
-        stage('Deploy') { 
+        stage('Deploy') {
             steps {
-                // 
+                sh 'python --version'
             }
         }
     }
