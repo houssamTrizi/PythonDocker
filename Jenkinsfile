@@ -4,6 +4,7 @@ pipeline {
         }
     environment {
         HOME = "${env.WORKSPACE}"
+        DOCKERHUB_CREDENTIALS= credentials('houssamtrizi-dockerhub')
     } 
     stages {
         stage('Install dependencies') {
@@ -17,9 +18,10 @@ pipeline {
             }
         }
         stage('Deploy') {
-            steps {
-                sh 'python --version'
-            }
+            sh 'docker build -t houssamtrizi/pythondocker_web:latest .'
+            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login - $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            sh 'docker push houssamtrizi/pythondocker_web:latest'
+            sh 'logout'
         }
     }
 }
