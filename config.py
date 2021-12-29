@@ -2,8 +2,7 @@ from urllib.parse import quote_plus
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = "sqlite://:memory:"
-    SQLALCHEMY_POOL_TIMEOUT = 60
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
