@@ -18,19 +18,18 @@ pipeline {
             }
         }
         stage('Deploy') {
+            agent any
             steps{
-                node {
                     sh 'docker build -t houssamtrizi/pythondocker_web:latest .'
                     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login - $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                     sh 'docker push houssamtrizi/pythondocker_web:latest'
-                }
             }
         }
     }
     post {
         always{
             cleanWs()
-            node{
+            node('builtin'){
                 sh 'docker logout'
 
             }
