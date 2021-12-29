@@ -4,9 +4,7 @@ pipeline {
         }
     environment {
         HOME = "${env.WORKSPACE}"
-        DOCKERHUB_REGISTRY = "houssamtrizi/pythondocker_web:latest"
-        DOCKERHUB_CREDENTIALS= "houssamtrizi-dockerhub"
-        dockerImage = ''
+        DOCKERHUB_CREDENTIALS= credentials('houssamtrizi-dockerhub')
     } 
     stages {
         stage('Install dependencies') {
@@ -21,11 +19,10 @@ pipeline {
         }
         stage('Deploy') {
             steps{
-                script {
-                    dockerImage = docker.build DOCKERHUB_REGISTRY
-                    docker.withRegistry('', DOCKERHUB_CREDENTIALS){
-                        dockerImage.push()
-                    }
+                node {
+                    sh 'docker build -t houssamtrizi/pythondocker_web:latest .'
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login - $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh 'docker push houssamtrizi/pythondocker_web:latest'
                 }
             }
         }
@@ -33,6 +30,10 @@ pipeline {
     post {
         always{
             cleanWs()
+            node{
+                sh 'docker logout'
+
+            }
         }
     }
 }
