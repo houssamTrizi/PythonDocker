@@ -1,7 +1,26 @@
-DB_HOST = "mysqldb"
-DB_USER = "root"
-DB_PASSWORD = "p@ssw0rd1"
-DB_INVENTORY_NAME = "inventory"
-DB_TABLE_WIDGETS_NAME = "widgets"
-DB_CONNECT_RETRY_COUNT = 5
-DB_CONNEC_SLEEP_BEFORE_RETRY = 60
+from urllib.parse import quote_plus
+
+
+class Config:
+    SQLALCHEMY_DATABASE_URI = "sqlite//:memory:"
+    SQLALCHEMY_POOL_TIMEOUT = 60
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = fr"mysql://root:{quote_plus('p@ssw0rd1')}@127.0.0.1:3306/inventory"
+
+
+class DevConfig(Config):
+    DEBUG = True
+
+
+class TestingConfig(DevConfig):
+    TESTING = True
+
+
+config = {
+    "prod": ProductionConfig,
+    "dev": DevConfig,
+    "testing": TestingConfig
+}

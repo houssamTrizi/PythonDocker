@@ -1,47 +1,48 @@
-import json
-from flask import Flask, request
+from flask import Flask, request, jsonify, abort
 
-from config import DB_TABLE_WIDGETS_NAME
-from db import init_db
-
-app = Flask(__name__)
-
-MYDB = init_db()
+from config import config
+from db import db, Widget
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, Docker!'
+def create_app(config_name: str) -> Flask:
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
 
+    @app.route('/')
+    def hello_world():
+        return 'Hello, Docker!'
 
-@app.route('/widgets', methods=["GET"])
-def get_widgets():
-    cursor = MYDB.cursor()
+    @app.route('/widgets', methods=["GET"])
+    def get_widgets():
+        widgets = Widget.query.all()
 
-    cursor.execute("SELECT * FROM widgets")
+        return jsonify([widget.to_dict() for widget in widgets]), 200
 
-    row_headers = [x[0] for x in cursor.description]  # this will extract row headers
+    @app.route('/widgets', methods=["POST"])
+    def post_widget():
+        body = request.get_json()
+        wg = Widget(**body)
+        db.session.add(wg)
+        db.session.commit()
+        return "widget created", 200
 
-    results = cursor.fetchall()
-    json_data = []
-    for result in results:
-        json_data.append(dict(zip(row_headers, result)))
+    @app.route('/widgets/<widget_id>', methods=["DELETE"])
+    def delete_widget(widget_id: str):
+        widget = Widget.query.filter_by(name=widget_id).first()
+        if not widget:
+            abort(404, "Record not found")
+        db.session.delete(widget)
+        db.session.commit()
+        return f"widget {widget_id} deleted", 200
 
-    cursor.close()
+    @app.route('/widgets/<name>', methods=["GET"])
+    def get_widget_by_name(name: str):
+        widget = Widget.query.filter_by(name=name).first()
+        if not widget:
+            abort(404, "Record not found")
+        return jsonify(widget.to_dict()), 200
 
-    return json.dumps(json_data)
-
-
-@app.route('/widgets', methods=["POST"])
-def post_widget():
-    cursor = MYDB.cursor()
-    body = request.get_json()
-
-    cursor.execute(f"INSERT INTO {DB_TABLE_WIDGETS_NAME} VALUES {tuple(body.values())}")
-    MYDB.commit()
-    cursor.close()
-    return "widget created", 200
-
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    return app

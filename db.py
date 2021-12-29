@@ -1,41 +1,17 @@
-import logging
-import time
+from sqlalchemy import Column, String
+from flask_sqlalchemy import SQLAlchemy
 
-import mysql.connector
-
-from config import *
+db = SQLAlchemy()
 
 
-def init_db():
-    logger = logging.getLogger(__name__)
-    mydb: mysql.connector.MySQLConnection = mysql.connector.MySQLConnection()
-    count = 0
-    while count < DB_CONNECT_RETRY_COUNT:
-        try:
-            mydb = mysql.connector.connect(
-                host=DB_HOST,
-                user=DB_USER,
-                password=DB_PASSWORD)
-        except mysql.connector.errors.InterfaceError as e:
-            logger.warning(f'Failed to connect to mysql db... retrying in {DB_CONNEC_SLEEP_BEFORE_RETRY}s')
-            time.sleep(DB_CONNEC_SLEEP_BEFORE_RETRY)
-        finally:
-            count += 1
-    if not mydb.is_connected():
-        raise ConnectionError("Failed to connect to mysql db")
-    cursor = mydb.cursor()
-    cursor.execute("CREATE DATABASE IF NOT EXISTS inventory")
-    cursor.close()
+class Widget(db.Model):
+    __tablename__ = "widgets"
+    name = Column(String(120), primary_key=True, nullable=False)
+    description = Column(String(1000))
 
-    mydb = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_INVENTORY_NAME
-    )
-    cursor = mydb.cursor()
+    def __repr__(self):
+        return f"{self.name}"
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS widgets (name VARCHAR(255), description VARCHAR(255))")
-    cursor.close()
-
-    return mydb
+    def to_dict(self):
+        return {name: value for name, value
+                in self.__dict__.items() if name in self.__table__.columns}
