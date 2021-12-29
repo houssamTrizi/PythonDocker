@@ -2,3 +2,4 @@ flask~=2.0.2
 mysql-connector-python~=8.0.27
 pytest
 SQLAlchemy~=1.4.29
+flask_sqlalchemy
