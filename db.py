@@ -1,3 +1,4 @@
+"""Db models definition module"""
 from sqlalchemy import Column, String
 from flask_sqlalchemy import SQLAlchemy
 

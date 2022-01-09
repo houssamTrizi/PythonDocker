@@ -1,3 +1,4 @@
+"""Configuration initialisation module"""
 from urllib.parse import quote_plus
 
 
@@ -7,7 +8,8 @@ class Config:
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = fr"mysql://root:{quote_plus('p@ssw0rd1')}@127.0.0.1:3306/inventory"
+    SQLALCHEMY_DATABASE_URI = \
+        fr"mysql://root:{quote_plus('p@ssw0rd1')}@127.0.0.1:3306/inventory"
 
 
 class DevConfig(Config):
